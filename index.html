@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bitcoin">
+<meta name="theme-color" content="#f7f6f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)">
+<title>Bitcoin</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23f7931a'/%3E%3Ctext x='50' y='70' font-size='58' font-family='-apple-system,Helvetica,Arial' font-weight='700' fill='white' text-anchor='middle'%3E%E2%82%BF%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f7f6f3; --ink:#111213; --ink2:#5a5b5e; --ink3:#9a9b9e; --rule:#e2e1dd; --rule2:#cfcec9;
+  --btc:#e8830f; --up:#1d8a4a; --down:#c8381d; --band:#ecebe7; --chip:#edece8;
+  --upbg:rgba(29,138,74,.13); --downbg:rgba(200,56,29,.13);
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#101214; --ink:#f2f2f0; --ink2:#a8a9ab; --ink3:#6d6e70; --rule:#24272a; --rule2:#34373a;
+         --btc:#f7931a; --up:#3fbf70; --down:#f0634a; --band:#1a1d20; --chip:#1c1f22;
+         --upbg:rgba(63,191,112,.16); --downbg:rgba(240,99,74,.16); }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;
+  background:var(--bg); color:var(--ink); font-size:16px; line-height:1.4;
+  font-variant-numeric:tabular-nums; -webkit-font-smoothing:antialiased;
+  padding:max(14px,env(safe-area-inset-top)) 0 max(28px,env(safe-area-inset-bottom));
+}
+.wrap{max-width:460px;margin:0 auto;padding:0 20px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible,input:focus-visible{outline:2px solid var(--btc);outline-offset:2px}
+input{font:inherit;color:inherit}
+
+.top{display:flex;align-items:center;justify-content:space-between;padding:6px 0 26px}
+.brand{font-weight:700;letter-spacing:-.01em;font-size:17px;display:flex;align-items:center;gap:8px}
+.brand .b{width:22px;height:22px;border-radius:50%;background:var(--btc);color:#fff;font-size:14px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;line-height:1}
+.tr{display:flex;align-items:center;gap:8px}
+.seg{display:inline-flex;background:var(--chip);border-radius:9px;padding:2px}
+.seg button{padding:5px 12px;border-radius:7px;font-size:13px;font-weight:600;color:var(--ink2)}
+.seg button.on{background:var(--bg);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.icon{width:32px;height:32px;border-radius:9px;background:var(--chip);display:inline-flex;align-items:center;justify-content:center;color:var(--ink2)}
+.icon svg{width:16px;height:16px}
+
+.hero .lab{font-size:13px;color:var(--ink2)}
+.hero .price{font-size:52px;font-weight:700;letter-spacing:-.035em;line-height:1.05;margin:2px 0 4px}
+.hero .sub{display:flex;align-items:baseline;gap:10px;font-size:15px;flex-wrap:wrap}
+.hero .sub b{font-weight:600}
+.hero .alt{color:var(--ink2)}
+.hero .stack,.hero .net{margin-top:8px;font-size:13px;color:var(--ink3)}
+.hero .stack b{color:var(--ink2);font-weight:600}
+.spark{display:block;width:100%;height:64px;margin:16px 0 4px}
+.spark-cap{display:flex;justify-content:space-between;font-size:11px;color:var(--ink3)}
+
+.pos{color:var(--up)} .neg{color:var(--down)} .mut{color:var(--ink3)}
+.sec{border-top:1px solid var(--rule)}
+.sec summary{list-style:none;display:flex;align-items:center;gap:10px;padding:15px 0;cursor:pointer;font-size:15px;font-weight:600}
+.sec summary::-webkit-details-marker{display:none}
+.sec summary .t{flex:1;min-width:0}
+.sec summary .t small{display:block;font-size:12px;font-weight:400;color:var(--ink3);margin-top:1px}
+.sec summary .sum{font-size:14px;font-weight:600;text-align:right;white-space:nowrap}
+.sec summary .sum small{display:block;font-size:11px;font-weight:400;color:var(--ink3)}
+.sec summary .ch{width:18px;height:18px;color:var(--ink3);flex-shrink:0;transition:transform .2s}
+.sec[open] summary .ch{transform:rotate(180deg)}
+.sec .body{padding:2px 0 22px}
+@media (prefers-reduced-motion:reduce){.sec summary .ch{transition:none}}
+.sections{margin-top:22px}
+.row{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--rule);gap:12px}
+.row:last-child{border-bottom:0}
+.row .l{font-size:15px;min-width:0}
+.row .l small{display:block;font-size:12px;color:var(--ink3);margin-top:1px}
+.row .r{text-align:right;flex-shrink:0;font-size:15px}
+.row .r small{display:block;font-size:12px;margin-top:1px}
+.row .r .chg{font-size:13px;font-weight:600;margin-left:8px}
+
+.perf{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.perf div{background:var(--chip);border-radius:10px;padding:10px 12px}
+.perf .k{font-size:12px;color:var(--ink2)}
+.perf .v{font-size:17px;font-weight:700;letter-spacing:-.01em;margin-top:2px}
+.perf .a{font-size:12px;color:var(--ink3);margin-top:1px}
+
+.corr{margin:6px 0 14px}
+.corr .bar{position:relative;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--up),var(--band) 40%,var(--band) 60%,var(--down))}
+.corr .dot{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;background:var(--btc);border:3px solid var(--bg);transform:translate(-50%,-50%);box-shadow:0 0 0 1px var(--rule2)}
+.corr .lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--ink3);margin-top:6px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px}
+.three div{padding:6px 0}
+.three .k{font-size:12px;color:var(--ink2)}
+.three .v{font-size:16px;font-weight:700;letter-spacing:-.01em;margin-top:1px}
+.three .s{font-size:11px;color:var(--ink3)}
+.three .mid .v{color:var(--btc)}
+.note{font-size:12px;color:var(--ink3);margin-top:8px;line-height:1.45}
+.tabs{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap}
+.tabs button{font-size:12px;padding:4px 10px;border-radius:14px;background:var(--chip);color:var(--ink2)}
+.tabs button.on{background:var(--ink);color:var(--bg)}
+
+.months{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+.months button{border-radius:9px;padding:8px 4px 7px;text-align:center;background:var(--chip);border:2px solid transparent}
+.months button.up{background:var(--upbg)} .months button.dn{background:var(--downbg)}
+.months button.now{border-color:var(--btc)}
+.months button.on{border-color:var(--ink)}
+.months .m{font-size:11px;color:var(--ink2)}
+.months .v{font-size:14px;font-weight:700;letter-spacing:-.01em}
+.yrs{display:flex;flex-wrap:wrap;gap:5px}
+.yrs span{font-size:12px;padding:4px 7px;border-radius:7px;background:var(--chip)}
+.yrs span.up{background:var(--upbg)} .yrs span.dn{background:var(--downbg)}
+.yrs span i{font-style:normal;color:var(--ink3);margin-right:4px}
+
+table{width:100%;border-collapse:collapse;font-size:14px}
+td{padding:7px 0;border-bottom:1px solid var(--rule);vertical-align:baseline}
+tr:last-child td{border-bottom:0}
+td:nth-child(2),td:nth-child(3){text-align:right}
+td:first-child{color:var(--ink2)}
+td small{display:block;font-size:11px;color:var(--ink3)}
+
+details summary{list-style:none;font-size:14px;color:var(--ink2);cursor:pointer;padding:4px 0}
+details summary::-webkit-details-marker{display:none}
+.stackbox{display:flex;gap:8px;margin-top:10px}
+.stackbox input{flex:1;padding:11px 12px;border:1px solid var(--rule2);border-radius:10px;background:var(--bg);font-size:16px;min-width:0}
+.stackbox button{padding:0 14px;border-radius:10px;background:var(--ink);color:var(--bg);font-weight:600;font-size:14px}
+.stackbox button.ghost{background:var(--chip);color:var(--ink2)}
+
+footer{padding-top:22px;font-size:11px;color:var(--ink3);line-height:1.6}
+footer button{color:var(--ink2);text-decoration:underline}
+.err{font-size:12px;color:var(--ink2);margin-top:6px;padding:8px 10px;background:var(--chip);border-radius:8px}
+.err button{text-decoration:underline;color:var(--ink)}
+.skel{color:var(--ink3)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="top">
+  <div class="brand"><span class="b">₿</span>Bitcoin</div>
+  <div class="tr">
+    <div class="seg" id="cur"><button data-c="EUR">EUR</button><button data-c="USD">USD</button></div>
+    <button class="icon" id="share" aria-label="Teilen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5M5 14v6h14v-6"/></svg></button>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="lab">1 Bitcoin</div>
+  <div class="price" id="price"><span class="skel">lädt…</span></div>
+  <div class="sub"><span id="chg24"></span><span class="alt" id="alt"></span></div>
+  <div class="stack" id="stackLine" hidden></div>
+  <div class="net" id="net"></div>
+  <svg class="spark" id="spark" viewBox="0 0 400 64" preserveAspectRatio="none" aria-hidden="true"></svg>
+  <div class="spark-cap"><span>vor 1 Jahr</span><span id="sparkRange"></span><span>heute</span></div>
+</div>
+
+<div class="sections">
+<details class="sec"><summary><span class="t">Entwicklung<small id="perfSub">je Bitcoin, mit absoluter Veränderung</small></span><span class="sum" id="perfSum"></span><svg class="ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><div class="perf" id="perf"></div></div></details>
+<details class="sec"><summary><span class="t">Saisonalität<small id="seasSub">Ø Monatsrendite seit 2013</small></span><span class="sum" id="seasSum"></span><svg class="ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><div class="months" id="months"></div><div id="monthYears"></div></div></details>
+<details class="sec"><summary><span class="t">Power Law<small id="plSub">Santostasi-Modell</small></span><span class="sum" id="plSum"></span><svg class="ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><div class="corr"><div class="bar"><div class="dot" id="plDot" style="left:50%"></div></div>
+    <div class="lbl"><span>Bottom</span><span id="plPos"></span><span>Top</span></div></div>
+  <div class="three" id="pl"></div>
+  <div class="tabs" id="plTabs"></div>
+  <div class="three" id="plFuture"></div>
+  <div class="note">Fair Value ≈ 1,0117·10⁻¹⁷ · Tage seit Genesis<sup>5,82</sup>. Bottom = 0,42× Fair, Top = 3× Fair. Historisch lagen Zyklustiefs am Bottom-Band, Zyklushochs unter dem Top-Band.</div></div></details>
+<details class="sec"><summary><span class="t">Bitcoin24<small id="b24Sub">Michael Saylor, 2024–2045</small></span><span class="sum" id="b24Sum"></span><svg class="ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><div class="tabs" id="b24Tabs"></div>
+  <div class="three" id="b24"></div>
+  <div class="note">Modellpfad ab 45.000 $ (Jan 2024) mit jährlich sinkender Rendite bis zu Saylors Zielwerten 2045: Bear 3 Mio., Base 13 Mio., Bull 49 Mio. $. Umrechnung in EUR zum heutigen Kurs.</div></div></details>
+<details class="sec"><summary><span class="t">Letzter Zyklus<small id="cycSub">heute vor 4, 8 und 12 Jahren</small></span><span class="sum" id="cycSum"></span><svg class="ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><div id="cycle"></div></div></details>
+<details class="sec"><summary><span class="t">Jahresschluss<small id="yearsSub">Kurs am 31.12.</small></span><span class="sum" id="yearsSum"></span><svg class="ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><table id="years"></table></div></details>
+<details class="sec"><summary><span class="t">Märkte<small id="mkSub">24 h</small></span><span class="sum" id="mkSum"></span><svg class="ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><div id="markets"></div><div class="err" id="mkErr" hidden></div></div></details>
+<details class="sec" id="stackDet"><summary><span class="t" id="stackSum">Bestand hinzufügen<small>optional, bleibt auf diesem Gerät</small></span><span class="sum" id="stackSumV"></span><svg class="ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body">
+    <div class="stackbox">
+      <input id="stackIn" type="text" inputmode="decimal" placeholder="Bitcoin, z. B. 0,25">
+      <button id="stackSave">Speichern</button>
+      <button id="stackClear" class="ghost">Löschen</button>
+    </div>
+    <div class="note">Alle Zahlen oben bleiben je Bitcoin – dein Bestand wird nur zusätzlich klein angezeigt.</div>
+  </div></details>
+</div>
+
+<footer>
+  <span id="stamp">Kurse von Kraken.</span> <button id="reload">Aktualisieren</button><br>
+  <span id="srcNote"></span>Kurs alle 30 Sekunden. Keine Anlageberatung.
+</footer>
+
+</div>
+
+<script>
+// ─────────────────────────────── state
+const LS = { cur:'btc.cur', stack:'btc.stack', hist:'btc.hist3.' };
+let cur = localStorage.getItem(LS.cur) || 'EUR';
+let stack = parseFloat(localStorage.getItem(LS.stack)) || 0;
+const D = { spot:{USD:null,EUR:null}, eurusd:null, hour:{USD:[],EUR:[]}, day:{USD:[],EUR:[]}, daySrc:{}, mk:null, mkState:'loading',
+            plYear:1, b24Year:new Date().getFullYear(), month:new Date().getMonth(), height:null };
+const MON = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+const MONL = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+
+// ─────────────────────────────── format
+const nf = (v,d) => new Intl.NumberFormat('de-DE',{maximumFractionDigits:d,minimumFractionDigits:d}).format(v);
+const fmtC = (v,c=cur,d) => v==null||isNaN(v) ? '–' :
+  new Intl.NumberFormat('de-DE',{style:'currency',currency:c,maximumFractionDigits:d??(Math.abs(v)>=1000?0:2),minimumFractionDigits:d??(Math.abs(v)>=1000?0:2)}).format(v);
+const fmtS = (v,c=cur) => v==null||isNaN(v) ? '–' : (v>0?'+':'')+fmtC(v,c,0);   // signed absolute
+const fmtBig = (v,c=cur) => v>=1e6 ? (c==='EUR'?'':'$ ')+nf(v/1e6,2)+' Mio.'+(c==='EUR'?' €':'') : fmtC(v,c);
+const fmtP = (v,d=1) => v==null||isNaN(v) ? '–' : (v>0?'+':'')+nf(v,d)+' %';
+const cls = v => v==null||isNaN(v) ? 'mut' : v>=0 ? 'pos' : 'neg';
+const fmtX = v => v==null||isNaN(v) ? '–' : '×'+nf(v,v>=10?0:1);
+const fmtBtc = v => new Intl.NumberFormat('de-DE',{maximumFractionDigits:8}).format(v)+' ₿';
+const conv = usd => cur==='USD' ? usd : (D.eurusd ? usd/D.eurusd : null);
+const dateDE = d => d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+// ─────────────────────────────── kraken (BTC)
+const K = 'https://api.kraken.com/0/public/';
+const PAIR = { USD:'XBTUSD', EUR:'XBTEUR' };
+async function kraken(path){
+  const r = await fetch(K+path); const j = await r.json();
+  if(j.error && j.error.length) throw new Error(j.error.join(','));
+  return j.result;
+}
+const firstKey = res => Object.keys(res).find(k=>k!=='last');
+
+async function fetchSpot(){
+  const res = await kraken('Ticker?pair=XBTUSD,XBTEUR,EURUSD');
+  for(const k of Object.keys(res)){
+    const last = parseFloat(res[k].c[0]);
+    if(k.includes('XBT') && k.endsWith('USD')) D.spot.USD = last;
+    else if(k.includes('XBT') && k.endsWith('EUR')) D.spot.EUR = last;
+    else if(k.includes('EUR') && k.endsWith('USD')) D.eurusd = last;
+  }
+  if(!D.eurusd && D.spot.USD && D.spot.EUR) D.eurusd = D.spot.USD/D.spot.EUR;
+}
+async function fetchHours(c){
+  const res = await kraken(`OHLC?pair=${PAIR[c]}&interval=60`);
+  D.hour[c] = res[firstKey(res)].map(r=>[r[0], parseFloat(r[4])]);
+}
+
+// ─────────────────────────────── daily history since 2013
+// Kraken only serves the latest 720 daily candles. Older days: CoinGecko → Bitstamp → Kraken weekly.
+const START = 1325376000; // 2012-01-01
+async function histCoinGecko(c){
+  const r = await fetch(`https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=${c.toLowerCase()}&days=max&interval=daily`);
+  if(!r.ok) throw new Error('cg '+r.status);
+  const j = await r.json();
+  // points are 00:00 UTC = close of previous day → shift back one day to match candle-open convention
+  return j.prices.map(p=>[Math.floor(p[0]/1000)-86400, p[1]]).filter(p=>p[1]>0);
+}
+async function histBitstamp(c, upTo){
+  const pair = 'btc'+c.toLowerCase(); let start = START, out = [];
+  for(let i=0;i<8;i++){
+    const r = await fetch(`https://www.bitstamp.net/api/v2/ohlc/${pair}/?step=86400&limit=1000&start=${start}`);
+    if(!r.ok) throw new Error('bs '+r.status);
+    const j = await r.json(); const rows = (j.data&&j.data.ohlc)||[];
+    if(!rows.length) break;
+    rows.forEach(x=>out.push([+x.timestamp, parseFloat(x.close)]));
+    start = +rows[rows.length-1].timestamp + 86400;
+    if(rows.length<1000 || start>=upTo) break;
+    await sleep(150);
+  }
+  if(!out.length) throw new Error('bs empty');
+  return out;
+}
+async function histKrakenWeekly(c){
+  const res = await kraken(`OHLC?pair=${PAIR[c]}&interval=10080`);
+  return res[firstKey(res)].map(r=>[r[0], parseFloat(r[4])]);
+}
+async function fetchDaily(c){
+  const key = LS.hist+c;
+  let cached = {src:null, rows:[]}; try{ cached = JSON.parse(localStorage.getItem(key)) || cached; }catch(e){}
+  const map = new Map(cached.rows);
+  const res = await kraken(`OHLC?pair=${PAIR[c]}&interval=1440`);
+  const kr = res[firstKey(res)].map(r=>[r[0], parseFloat(r[4])]);
+  const oldest = kr[0][0];
+  let src = cached.src;
+  const covered = cached.rows.length && cached.rows[0][0] < START+500*86400 && (src==='daily');
+  if(!covered){
+    let old=null;
+    try{ old = await histBitstamp(c, oldest); src='daily'; }catch(e){ console.warn('bitstamp',e); }
+    if(!old || old[0][0] > START+200*86400){ try{ const cg = await histCoinGecko(c); old = (old||[]).concat(cg.filter(r=>!old||r[0]<old[0][0])); src='daily'; }catch(e){ console.warn('coingecko',e); } }
+    if(!old){ try{ old = await histKrakenWeekly(c); src='weekly'; }catch(e){ console.warn('weekly',e); } }
+    if(old) old.forEach(r=>{ if(r[0]<oldest) map.set(r[0],r[1]); });
+  }
+  kr.forEach(r=>map.set(r[0],r[1]));
+  const all = [...map.entries()].sort((a,b)=>a[0]-b[0]);
+  D.day[c] = all; D.daySrc[c] = src;
+  try{ localStorage.setItem(key, JSON.stringify({src, rows:all})); }catch(e){}
+}
+function priceAt(c, date){
+  const t = date.getTime()/1000, s = D.day[c]; if(!s.length) return null;
+  let lo=0, hi=s.length-1, best=null;
+  while(lo<=hi){ const m=(lo+hi)>>1; if(s[m][0]<=t){best=s[m];lo=m+1;} else hi=m-1; }
+  if(!best || t-best[0] > 15*86400) return null;
+  return best[1];
+}
+function priceHoursAgo(c,h){
+  const s = D.hour[c]; if(!s.length) return null;
+  const t = Date.now()/1000 - h*3600;
+  let best=null; for(const r of s){ if(r[0]<=t) best=r; else break; }
+  return best ? best[1] : null;
+}
+
+// ─────────────────────────────── markets: Kraken tokenized stocks first, Yahoo via proxy as fallback
+const SYMS = [
+  {id:'MSTR', name:'Strategy (MicroStrategy)', kr:['MSTRx'], yf:'MSTR', dual:true},
+  {id:'SPX', name:'S&P 500', kr:['SPYx'], yf:'^GSPC', krNote:'SPY-ETF', idx:true},
+  {id:'MSCI', name:'MSCI World', kr:[], yf:'URTH', krNote:'ETF', idx:true},
+  {id:'GOLD', name:'Gold', kr:['PAXG','XAUT'], yf:'GC=F', unit:'je Unze'},
+  {id:'SILVER', name:'Silber', kr:[], yf:'SI=F', unit:'je Unze'},
+  {id:'NVDA', name:'Nvidia', kr:['NVDAx'], yf:'NVDA'},
+  {id:'MSFT', name:'Microsoft', kr:['MSFTx'], yf:'MSFT'},
+  {id:'AAPL', name:'Apple', kr:['AAPLx'], yf:'AAPL'},
+  {id:'GOOGL', name:'Alphabet', kr:['GOOGLx'], yf:'GOOGL'},
+  {id:'AMZN', name:'Amazon', kr:['AMZNx'], yf:'AMZN'},
+];
+const YF = 'https://query1.finance.yahoo.com/v8/finance/chart/';
+const PROXIES = [
+  u => 'https://corsproxy.io/?url='+encodeURIComponent(u),
+  u => 'https://corsproxy.io/?'+encodeURIComponent(u),
+  u => 'https://api.allorigins.win/raw?url='+encodeURIComponent(u),
+  u => 'https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(u),
+  u => 'https://thingproxy.freeboard.io/fetch/'+u,
+];
+async function viaProxy(url){
+  let err;
+  for(const p of PROXIES){
+    try{
+      const ctrl = new AbortController(); const t = setTimeout(()=>ctrl.abort(),8000);
+      const r = await fetch(p(url),{signal:ctrl.signal}); clearTimeout(t);
+      if(!r.ok) throw new Error(r.status);
+      const j = await r.json(); if(j.chart && j.chart.result) return j;
+      throw new Error('bad');
+    }catch(e){ err=e; }
+  }
+  throw err || new Error('proxy');
+}
+async function krakenStocks(){
+  if(!D.kalts){ const ap = await kraken('AssetPairs'); D.kalts = Object.entries(ap).map(([k,v])=>({key:k,alt:(v.altname||'').toUpperCase(),ws:v.wsname||''})); }
+  const found = {};
+  for(const s of SYMS){
+    for(const base of s.kr){
+      const hit = D.kalts.find(a=>a.alt===(base+'USD').toUpperCase());
+      if(hit){ found[s.id]=hit; break; }
+    }
+  }
+  const keys = Object.values(found).map(h=>h.alt);
+  if(!keys.length) return {};
+  const tick = await kraken('Ticker?pair='+keys.join(','));
+  const out = {};
+  for(const s of SYMS){
+    const h = found[s.id]; if(!h) continue;
+    const tk = Object.keys(tick).find(k=>k===h.key||k.toUpperCase()===h.alt||tick[k]&&h.alt===k.toUpperCase());
+    const t = tick[tk] || tick[h.key]; if(!t) continue;
+    const price = parseFloat(t.c[0]); let prev=null;
+    try{ await sleep(120); const o = await kraken(`OHLC?pair=${h.alt}&interval=60`); const rows=o[firstKey(o)];
+      const cut = Date.now()/1000-24*3600; for(const r of rows){ if(r[0]<=cut) prev=parseFloat(r[4]); else break; } }catch(e){}
+    out[s.id] = { price, chg: prev?(price/prev-1)*100:null, src:'Kraken'+(s.krNote?' · '+s.krNote:''), t:Date.now()/1000 };
+  }
+  return out;
+}
+async function yahooStock(s){
+  const j = await viaProxy(`${YF}${encodeURIComponent(s.yf)}?range=5d&interval=1d`);
+  const res = j.chart.result[0], m = res.meta;
+  const closes = (res.indicators.quote[0].close||[]), ts = res.timestamp||[];
+  const price = m.regularMarketPrice, t = m.regularMarketTime||Date.now()/1000;
+  let prev = null; for(let i=0;i<ts.length;i++) if(ts[i]<t-12*3600 && closes[i]!=null) prev = closes[i];
+  if(prev==null) prev = m.chartPreviousClose;
+  return { price, chg: prev?(price/prev-1)*100:null, src:'Yahoo', t };
+}
+async function fetchMarkets(){
+  D.mkState='loading'; renderMarkets();
+  let got = {};
+  try{ got = await krakenStocks(); }catch(e){ console.warn('kraken stocks',e); }
+  const rest = SYMS.filter(s=>!got[s.id]);
+  const r = await Promise.allSettled(rest.map(yahooStock));
+  r.forEach((x,i)=>{ if(x.status==='fulfilled') got[rest[i].id]=x.value; });
+  D.mk = SYMS.map(s=>Object.assign({},s,got[s.id]||{price:null}));
+  D.mkState = D.mk.some(m=>m.price!=null) ? 'ok' : 'fail';
+  renderMarkets();
+}
+
+// ─────────────────────────────── network (block height, halving)
+async function fetchHeight(){
+  try{ const r = await fetch('https://mempool.space/api/blocks/tip/height'); D.height = parseInt(await r.text()); }catch(e){}
+}
+
+// ─────────────────────────────── models
+const GENESIS = Date.UTC(2009,0,3);
+const plFair = date => 1.0117e-17 * Math.pow((date.getTime()-GENESIS)/864e5, 5.82);
+const PL_LO = 0.42, PL_HI = 3;
+const B24 = { start:Date.UTC(2024,0,1), p0:45000, end:Date.UTC(2045,0,1),
+  cases:{ bear:{target:3e6,rEnd:.10}, base:{target:13e6,rEnd:.20}, bull:{target:49e6,rEnd:.30} } };
+function b24Path(r0,rEnd,tMs){
+  const years = (tMs-B24.start)/(365.25*864e5); if(years<=0) return B24.p0;
+  const N=21; let lp=Math.log(B24.p0);
+  for(let y=0;y<Math.min(years,N);y++){ const r = r0+(rEnd-r0)*(y/(N-1)); lp += Math.min(1,years-y)*Math.log(1+r); }
+  return Math.exp(lp);
+}
+for(const k in B24.cases){ const c=B24.cases[k]; let lo=0,hi=5;
+  for(let i=0;i<60;i++){ const mid=(lo+hi)/2; b24Path(mid,c.rEnd,B24.end)<c.target?lo=mid:hi=mid; } c.r0=(lo+hi)/2; }
+const b24Price = (k,date) => b24Path(B24.cases[k].r0,B24.cases[k].rEnd,date.getTime());
+
+// ─────────────────────────────── seasonality
+function monthlyReturns(c){
+  const now=new Date(), s=D.day[c]; if(!s.length) return null;
+  const firstY = new Date(s[0][0]*1000).getFullYear();
+  const byMonth = Array.from({length:12},()=>[]); // {y, r}
+  let current=null;
+  for(let y=firstY;y<=now.getFullYear();y++) for(let m=0;m<12;m++){
+    const isCur = y===now.getFullYear()&&m===now.getMonth();
+    if(y===now.getFullYear()&&m>now.getMonth()) break;
+    const prev = priceAt(c,new Date(y,m,0,23,59)); if(!prev) continue;
+    const end = isCur ? D.spot[c] : priceAt(c,new Date(y,m+1,0,23,59)); if(!end) continue;
+    const r=(end/prev-1)*100;
+    if(isCur) current={y,r}; else byMonth[m].push({y,r});
+  }
+  const avg = byMonth.map(a=>a.length?a.reduce((x,o)=>x+o.r,0)/a.length:null);
+  return {byMonth,avg,current,firstY};
+}
+
+// ─────────────────────────────── render
+const $ = id => document.getElementById(id);
+function render(){
+  const p = D.spot[cur], o = cur==='EUR'?'USD':'EUR';
+  if(!p) return;
+  const now = new Date();
+  const c24 = priceHoursAgo(cur,24), chg = c24 ? (p/c24-1)*100 : null;
+  $('price').innerHTML = fmtC(p);
+  $('chg24').className = cls(chg);
+  $('chg24').innerHTML = c24 ? `<b>${fmtS(p-c24)}</b> ${fmtP(chg)}` : '';
+  $('alt').textContent = D.spot[o] ? fmtC(D.spot[o],o) : '';
+  const sl = $('stackLine');
+  if(stack>0){ sl.hidden=false; sl.innerHTML = `Dein Stack: ${fmtBtc(stack)} <b>≈ ${fmtC(stack*p)}</b>${c24?` <span class="${cls(chg)}">${fmtS(stack*(p-c24))}</span>`:''}`; }
+  else sl.hidden=true;
+  $('stackSum').innerHTML = stack>0 ? `Bestand<small>${fmtBtc(stack)}</small>` : 'Bestand hinzufügen<small>optional, bleibt auf diesem Gerät</small>';
+  $('stackSumV').innerHTML = stack>0 ? `${fmtC(stack*p)}<small class="${cls(chg)}">${c24?fmtS(stack*(p-c24)):''}</small>` : '';
+  if(D.height){ const next=Math.ceil((D.height+1)/210000)*210000, days=(next-D.height)*10/1440;
+    $('net').textContent = `Block ${nf(D.height,0)} · Halving in ~${nf(days,0)} Tagen`; }
+
+  const ago = (y,m=0,d=0)=>{ const t=new Date(now); t.setFullYear(t.getFullYear()-y); t.setMonth(t.getMonth()-m); t.setDate(t.getDate()-d); return t; };
+  const ye = new Date(now.getFullYear()-1,11,31,23,59);
+  const perf = [
+    ['24 h', c24], ['7 Tage', priceHoursAgo(cur,7*24)], ['30 Tage', priceHoursAgo(cur,30*24)||priceAt(cur,ago(0,1))],
+    ['seit 1.1.', priceAt(cur,ye)], ['1 Jahr', priceAt(cur,ago(1))], ['4 Jahre', priceAt(cur,ago(4))],
+  ];
+  $('perf').innerHTML = perf.map(([k,v])=>{ const x=v?(p/v-1)*100:null;
+    return `<div><div class="k">${k}</div><div class="v ${cls(x)}">${fmtP(x)}</div><div class="a">${v?fmtS(p-v):'–'}</div></div>`; }).join('');
+
+  const yr = D.day[cur].filter(r=>r[0]>=ago(1).getTime()/1000);
+  if(yr.length>10){
+    const vals=yr.map(r=>r[1]); vals.push(p);
+    const mn=Math.min(...vals), mx=Math.max(...vals), w=400, h=64;
+    const pts = vals.map((v,i)=>`${(i/(vals.length-1)*w).toFixed(1)},${(h-3-(v-mn)/(mx-mn||1)*(h-6)).toFixed(1)}`).join(' ');
+    const up = vals[vals.length-1]>=vals[0];
+    $('spark').innerHTML = `<polyline points="${pts}" fill="none" stroke="${up?'var(--up)':'var(--down)'}" stroke-width="1.8" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`;
+    $('sparkRange').textContent = `${fmtC(mn)} – ${fmtC(mx)}`;
+  }
+
+  // seasonality
+  const mr = monthlyReturns(cur);
+  if(mr){
+    $('seasSub').textContent = `Ø Monatsrendite seit ${mr.firstY}${D.daySrc[cur]==='weekly'?' (Wochenkurse)':''}`;
+    $('months').innerHTML = mr.avg.map((a,m)=>`<button data-m="${m}" class="${a==null?'':a>=0?'up':'dn'} ${m===now.getMonth()?'now':''} ${m===D.month?'on':''}"><div class="m">${MON[m]}</div><div class="v">${fmtP(a)}</div></button>`).join('');
+    const list = mr.byMonth[D.month];
+    const curLine = D.month===now.getMonth()&&mr.current ? `<span class="${mr.current.r>=0?'up':'dn'}"><i>${now.getFullYear()} bisher</i>${fmtP(mr.current.r)}</span>` : '';
+    const pos = list.filter(x=>x.r>=0).length;
+    $('monthYears').innerHTML = `<div class="note" style="margin:0 0 8px">${MONL[D.month]}: in ${pos} von ${list.length} Jahren positiv, Ø ${fmtP(mr.avg[D.month])}</div>
+      <div class="yrs">${curLine}${[...list].reverse().map(x=>`<span class="${x.r>=0?'up':'dn'}"><i>${x.y}</i>${fmtP(x.r,0)}</span>`).join('')}</div>`;
+  } else $('months').innerHTML='<div class="mut skel">lädt…</div>';
+
+  // power law
+  const fairU = plFair(now), fair=conv(fairU), lo=conv(fairU*PL_LO), hi=conv(fairU*PL_HI);
+  if(fair){
+    const pos = Math.max(0,Math.min(1,(Math.log(p)-Math.log(lo))/(Math.log(hi)-Math.log(lo))));
+    $('plDot').style.left = (pos*100).toFixed(1)+'%';
+    $('plPos').innerHTML = `<span class="${cls(p-fair)}">${fmtS(p-fair)} · ${fmtP((p/fair-1)*100)}</span> zum Fair Value`;
+    $('pl').innerHTML = tri([['Bottom',lo],['Fair Value',fair],['Top',hi]], stack, 'heute');
+    if(![1,2,4,8].includes(D.plYear)) D.plYear=1;
+    $('plTabs').innerHTML = [1,2,4,8].map(y=>`<button data-y="${y}" class="${D.plYear===y?'on':''}">+${y} J</button>`).join('');
+    const fd = new Date(now); fd.setFullYear(fd.getFullYear()+D.plYear); const ff=plFair(fd);
+    $('plFuture').innerHTML = tri([['Bottom',conv(ff*PL_LO)],['Fair Value',conv(ff)],['Top',conv(ff*PL_HI)]], stack, dateDE(fd));
+  }
+
+  // bitcoin24
+  const b24y=[now.getFullYear(),2030,2035,2045]; if(!b24y.includes(D.b24Year)) D.b24Year=now.getFullYear();
+  $('b24Tabs').innerHTML = b24y.map(y=>`<button data-y="${y}" class="${D.b24Year===y?'on':''}">${y===now.getFullYear()?'heute':y}</button>`).join('');
+  const isNow = D.b24Year===now.getFullYear(), bd = isNow ? now : new Date(D.b24Year,0,1);
+  $('b24').innerHTML = tri([['Bear',conv(b24Price('bear',bd))],['Base',conv(b24Price('base',bd))],['Bull',conv(b24Price('bull',bd))]], stack, isNow?'Modellwert heute':'1.1.'+D.b24Year, true);
+
+  // cycles
+  $('cycle').innerHTML = [4,8,12].map(y=>{ const d=ago(y), v=priceAt(cur,d); if(!v) return '';
+    return `<div class="row"><div class="l">${y} Jahren<small>${dateDE(d)}</small></div><div class="r">${fmtC(v)}<small class="${cls(p/v-1)}">${fmtS(p-v)} · seitdem ${fmtX(p/v)}</small></div></div>`; }).join('')
+    || `<div class="mut">${D.day[cur].length?'Historie reicht nicht so weit zurück':'Historie lädt…'}</div>`;
+
+  // year ends
+  let rows=[]; let prevV=null;
+  const first = D.day[cur].length ? new Date(D.day[cur][0][0]*1000).getFullYear() : now.getFullYear();
+  for(let y=first;y<now.getFullYear();y++){
+    const v=priceAt(cur,new Date(y,11,31,23,59)); if(!v){prevV=null;continue;}
+    rows.push([String(y), v, prevV?(v/prevV-1)*100:null, prevV?v-prevV:null]); prevV=v;
+  }
+  rows.push([now.getFullYear()+' (heute)', p, prevV?(p/prevV-1)*100:null, prevV?p-prevV:null]);
+  rows.reverse();
+  $('years').innerHTML = rows.map(([y,v,x,a])=>`<tr><td>${y}</td><td>${fmtC(v)}</td><td class="${cls(x)}">${fmtP(x)}<small>${fmtS(a)}</small></td></tr>`).join('');
+  $('yearsSub').textContent = D.daySrc[cur]==='weekly' ? 'Kurs am 31.12. (älter als 2 J: Wochenkurs)' : 'Kurs am 31.12.';
+  const sm=(id,main,sub,k)=>{ $(id).innerHTML=`<span class="${k||''}">${main}</span>${sub?`<small>${sub}</small>`:''}`; };
+  const ytd=priceAt(cur,ye); sm('perfSum', ytd?fmtP((p/ytd-1)*100):'–', ytd?fmtS(p-ytd)+' seit 1.1.':'', ytd?cls(p/ytd-1):'mut');
+  if(mr){ const a=mr.avg[now.getMonth()]; sm('seasSum', fmtP(a), 'Ø '+MONL[now.getMonth()], cls(a)); }
+  if(fair) sm('plSum', fmtP((p/fair-1)*100), 'zum Fair Value '+fmtC(fair), cls(p-fair));
+  sm('b24Sum', fmtBig(conv(b24Price('base',now))), 'Base heute');
+  const v4=priceAt(cur,ago(4)); sm('cycSum', v4?fmtX(p/v4):'–', v4?'seit '+dateDE(ago(4)):'', v4?cls(p/v4-1):'mut');
+  const ly=rows.length>1?rows[1]:null; sm('yearsSum', ly?fmtC(ly[1]):'–', ly?'31.12.'+ly[0]:'');
+
+  renderMarkets();
+  $('stamp').textContent = `Stand ${now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})} · Bitcoin von Kraken, Historie ${D.daySrc[cur]==='weekly'?'Kraken (Wochen)':'Bitstamp/CoinGecko'}, Block von mempool.space.`;
+}
+function tri(items, st, sub, big){
+  return items.map(([k,v],i)=>`<div class="${i===1?'mid':''}"><div class="k">${k}</div><div class="v">${big?fmtBig(v):fmtC(v)}</div><div class="s">${st>0&&v?'Stack '+(big?fmtBig(v*st):fmtC(v*st)):sub&&i===1?sub:''}</div></div>`).join('');
+}
+function renderMarkets(){
+  const box=$('markets'), err=$('mkErr');
+  if(D.mkState==='loading'){ box.innerHTML='<div class="mut skel">lädt…</div>'; err.hidden=true; return; }
+  err.hidden = D.mkState!=='fail';
+  err.innerHTML = 'Aktienkurse gerade nicht erreichbar. Bitcoin-Daten sind davon unabhängig. <button id="mkRetry">Erneut versuchen</button>';
+  const stale = t => t && (Date.now()/1000-t) > 20*3600 ? ` · ${new Date(t*1000).toLocaleDateString('de-DE',{weekday:'short'})}-Schluss` : '';
+  box.innerHTML = (D.mk||[]).map(m=>{
+    const usd=m.price, eur=D.eurusd&&usd?usd/D.eurusd:null;
+    let main;
+    if(usd==null) main='–';
+    else if(m.dual) main = `${fmtC(cur==='EUR'?eur:usd,cur,2)}<small class="mut">${fmtC(cur==='EUR'?usd:eur,cur==='EUR'?'USD':'EUR',2)}</small>`;
+    else if(m.idx) main = nf(usd,usd<100?2:0);
+    else main = fmtC(usd,'USD',2);
+    const sub = usd==null ? '' : `${m.unit?m.unit+' · ':''}${m.src||''}${stale(m.t)}`;
+    return `<div class="row"><div class="l">${m.name}<small>${sub}</small></div><div class="r">${main}<span class="chg ${cls(m.chg)}">${fmtP(m.chg)}</span></div></div>`;
+  }).join('');
+  const rb=$('mkRetry'); if(rb) rb.onclick=()=>fetchMarkets();
+  const ms=(D.mk||[]).find(m=>m.id==='MSTR');
+  $('mkSum').innerHTML = ms&&ms.price!=null ? `<span class="${cls(ms.chg)}">${fmtP(ms.chg)}</span><small>MSTR ${fmtC(cur==='EUR'?ms.price/D.eurusd:ms.price,cur,0)}</small>` : (D.mkState==='fail'?'<span class="mut">–</span>':'');
+}
+
+// ─────────────────────────────── boot
+async function boot(){
+  try{
+    await fetchSpot();
+    await Promise.all([fetchHours('USD'),fetchHours('EUR')]);
+    render();
+  }catch(e){ $('price').innerHTML='<span class="skel" style="font-size:20px">Kraken nicht erreichbar</span>'; console.warn(e); return; }
+  fetchHeight().then(render);
+  fetchMarkets().catch(()=>{ D.mkState='fail'; renderMarkets(); });
+  for(const c of [cur, cur==='EUR'?'USD':'EUR']){ try{ await fetchDaily(c); render(); }catch(e){ console.warn(e); } }
+}
+setInterval(async()=>{ try{ await fetchSpot(); render(); }catch(e){} }, 30000);
+setInterval(async()=>{ try{ await Promise.all([fetchHours('USD'),fetchHours('EUR'),fetchHeight()]); render(); fetchMarkets(); }catch(e){} }, 600000);
+
+// ─────────────────────────────── events
+$('cur').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return;
+  cur=b.dataset.c; localStorage.setItem(LS.cur,cur);
+  [...$('cur').children].forEach(x=>x.classList.toggle('on',x.dataset.c===cur)); render(); });
+[...$('cur').children].forEach(x=>x.classList.toggle('on',x.dataset.c===cur));
+$('plTabs').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b){ D.plYear=+b.dataset.y; render(); } });
+$('b24Tabs').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b){ D.b24Year=+b.dataset.y; render(); } });
+$('months').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b){ D.month=+b.dataset.m; render(); } });
+$('stackSave').onclick=()=>{ const v=parseFloat(String($('stackIn').value).replace(',','.')); stack=v>0?v:0;
+  if(stack>0) localStorage.setItem(LS.stack,stack); else localStorage.removeItem(LS.stack); render(); $('stackDet').open=false; };
+$('stackClear').onclick=()=>{ stack=0; localStorage.removeItem(LS.stack); $('stackIn').value=''; render(); $('stackDet').open=false; };
+$('stackIn').addEventListener('keydown',e=>{ if(e.key==='Enter') $('stackSave').click(); });
+$('stackDet').addEventListener('toggle',()=>{ if($('stackDet').open) $('stackIn').value = stack>0 ? String(stack).replace('.',',') : ''; });
+$('reload').onclick=()=>location.reload();
+$('share').onclick=async()=>{
+  const p=D.spot[cur]; const c24=priceHoursAgo(cur,24);
+  const text = p ? `Bitcoin: ${fmtC(p)}${c24?` (${fmtP((p/c24-1)*100)} in 24 h)`:''}` : 'Bitcoin-Tracker';
+  try{ if(navigator.share) await navigator.share({title:'Bitcoin',text,url:location.href});
+       else { await navigator.clipboard.writeText(text+' '+location.href); $('share').style.color='var(--up)'; setTimeout(()=>$('share').style.color='',1200); } }catch(e){}
+};
+boot();
+</script>
+</body>
+</html>
